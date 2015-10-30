@@ -51,3 +51,53 @@ void Dweet::dweet(char* thing, char* data) {
 	//Stopping client
 	client.stop();
 }
+
+char* Dweet::get_latest(char* thing) {
+	//Establishing connection with dweet.io
+	client.connect("dweet.io", 80);
+
+	//Sending GET request
+	client.print(F("GET /get/latest/dweet/for/"));
+	client.print(thing);
+	client.println(F(" HTTP/1.1"));
+	client.println(F("Host: dweet.io"));
+	client.println(F("User-Agent: Arduino/1.0"));
+	client.println(F("Accept: application/json"));
+	client.println(F("Connection: close"));
+	client.println();
+
+	//Waiting for response
+	while(!client.available()) {}
+
+	eatHeader();
+	readLine();
+
+	//Stopping client
+	client.stop();
+
+	return databuffer;
+}
+
+//Consume the header
+void Dweet::eatHeader() {
+	//Consume lines to the empty line between the end of the header and the beginning of the response body
+	while(client.available()) {
+		readLine();
+		if(strlen(databuffer) == 0) break;
+	}
+}
+
+//Put incoming data's first line into the data buffer
+void Dweet::readLine() {
+	//dataptr pointer points to the beginning of the buffer
+	dataptr = databuffer;
+
+	char c = client.read();
+	while(client.available() && c != '\r') {
+		*dataptr++ = c;
+		c = client.read();
+	}
+	client.read();
+
+	*dataptr = 0;
+}

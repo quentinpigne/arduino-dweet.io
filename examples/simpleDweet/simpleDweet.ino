@@ -14,6 +14,9 @@ EthernetClient client;
 Dweet dweet(client);
 
 void setup() {
+  // Initialize serial
+  Serial.begin(9600);
+
   // Start the Ethernet connection
   Ethernet.begin(mac);
 
@@ -22,6 +25,10 @@ void setup() {
 
   // Dweet a thing !
   dweet.dweet("my-thing-name", "{\"hello\": \"world\"}");
+
+  // Get latest dweet !
+  char* res = dweet.get_latest("my-thing-name");
+  Serial.println(res);
 }
 
 void loop() {}
